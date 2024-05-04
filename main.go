@@ -1,18 +1,28 @@
 package main
 
 import (
+	"context"
 	"fmt"
 	"os"
 	"os/signal"
 	"syscall"
 
 	"github.com/bwmarrin/discordgo"
+	"go.mongodb.org/mongo-driver/mongo"
+	"go.mongodb.org/mongo-driver/mongo/options"
 )
+
+const db string = "main"
 
 func main() {
 	e := loadEnv()
 
-	dg, err := discordgo.New(e.botToken)
+	mongoClient, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(e.mongoUri))
+	if err != nil {
+		panic(err)
+	}
+
+	dg, err := discordgo.New("Bot " + e.botToken)
 	if err != nil {
 		panic(err)
 	}
@@ -23,7 +33,8 @@ func main() {
 			return
 		}
 
-		fmt.Printf("%s\n", m.Content)
+		newMessage(mongoClient, m)
+		fmt.Printf("%s:\t%s\n", m.Author.ID, m.Content)
 	})
 
 	if err := dg.Open(); err != nil {

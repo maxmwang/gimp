@@ -8,6 +8,7 @@ import (
 
 type env struct {
 	botToken string
+	mongoUri string
 }
 
 func loadEnv() env {
@@ -17,5 +18,6 @@ func loadEnv() env {
 
 	return env{
 		botToken: os.Getenv("BOT_TOKEN"),
+		mongoUri: os.Getenv("MONGO_URI"),
 	}
 }
